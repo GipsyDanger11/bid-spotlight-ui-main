@@ -4,6 +4,7 @@ import com.example.demo.dto.UserDTO;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -31,13 +35,14 @@ public class UserService {
     public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setName(userDTO.getName());
         user.setRole(userDTO.getRole());
-        user.setStatus(userDTO.getStatus());
-        user.setJoinDate(userDTO.getJoinDate());
-        user.setTotalBids(userDTO.getTotalBids());
-        user.setTotalSales(userDTO.getTotalSales());
+        user.setStatus(userDTO.getStatus() != null ? userDTO.getStatus() : User.UserStatus.ACTIVE);
+        user.setJoinDate(java.time.LocalDateTime.now());
+        user.setTotalBids(0);
+        user.setTotalSales(0);
+        user.setWalletBalance(new java.math.BigDecimal("10000"));
         return userRepository.save(user);
     }
 

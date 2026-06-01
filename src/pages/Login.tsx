@@ -62,21 +62,20 @@ const Login = () => {
       return;
     }
 
-    // Check credentials based on role
     try {
-      const user = await userApi.getUserByEmail(values.email);
-      
-      if (!user || user.password !== values.password) {
-        toast.error("Invalid email or password");
-        return;
-      }
+      // Use the new login API that returns JWT
+      const { token, user } = await userApi.login({
+        email: values.email,
+        password: values.password
+      });
 
       if (user.role.toLowerCase() !== role) {
         toast.error(`This account is not a ${role}`);
         return;
       }
 
-      // Store user info
+      // Store JWT token and user info
+      localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       toast.success(`Logged in as ${user.name}`);
       
@@ -91,63 +90,27 @@ const Login = () => {
           navigate("/admin");
           break;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
-      // Fallback for demo mode if backend is not running
-      let isValid = false;
-      let mockUser = { id: 0, name: "", email: values.email, role: role.toUpperCase() };
-
-      switch (role) {
-        case "admin":
-          isValid = values.email === "admin@bidlux.com" && values.password === "admin123";
-          mockUser.id = 1;
-          mockUser.name = "Admin User";
-          break;
-        case "seller":
-          isValid = values.email === "seller@bidlux.com" && values.password === "seller123";
-          mockUser.id = 2;
-          mockUser.name = "John Smith";
-          break;
-        case "customer":
-          isValid = (values.email === "customer@bidlux.com" && values.password === "customer123");
-          mockUser.id = 3;
-          mockUser.name = "Jane Doe";
-          if (!isValid && values.email === "customer2@bidlux.com" && values.password === "customer456") {
-            isValid = true;
-            mockUser.id = 4;
-            mockUser.name = "Customer 2";
-          }
-          break;
-      }
-
-      if (isValid) {
-        localStorage.setItem("user", JSON.stringify(mockUser));
-        toast.success(`Logged in as ${role} (Demo Mode)`);
-        switch (role) {
-          case "customer": navigate("/customer"); break;
-          case "seller": navigate("/seller"); break;
-          case "admin": navigate("/admin"); break;
-        }
-      } else {
-        toast.error("Invalid credentials or backend not running");
-      }
+      toast.error(error.message || "Invalid credentials or backend not running");
     }
   };
 
   const handleRegister = async (data: RegisterFormData) => {
     try {
-      const newUser = await userApi.createUser({
+      const { token, user } = await userApi.register({
         name: data.name,
         email: data.email,
         password: data.password,
         role: data.role,
         status: "ACTIVE",
-        totalBids: 0,
-        totalSales: 0,
-        walletBalance: 10000,
       });
 
-      toast.success(`Registration successful! Welcome, ${newUser.name}`);
+      // Store JWT token and user info
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      toast.success(`Registration successful! Welcome, ${user.name}`);
       
       // Navigate based on role
       if (data.role === "CUSTOMER") {
@@ -155,8 +118,8 @@ const Login = () => {
       } else if (data.role === "SELLER") {
         navigate("/seller");
       }
-    } catch (error) {
-      toast.error("Registration failed. Email may already be in use.");
+    } catch (error: any) {
+      toast.error(error.message || "Registration failed. Email may already be in use.");
       console.error("Registration error:", error);
     }
   };

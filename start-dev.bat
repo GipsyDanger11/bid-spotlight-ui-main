@@ -58,8 +58,3 @@ pause
 echo.
 echo Goodbye!
 pause
-
-:end
-echo.
-echo Goodbye!
-pause

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import com.example.demo.dto.BidDTO;
 
 @RestController
-@RequestMapping("/api/payments")
+@RequestMapping("/api/v1/payments")
 @CrossOrigin(origins = "http://localhost:5173")
 public class PaymentController {
 

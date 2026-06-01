@@ -8,6 +8,7 @@ import com.example.demo.repository.BidRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -25,6 +26,9 @@ public class DataSeeder implements CommandLineRunner {
     @Autowired
     private BidRepository bidRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public void run(String... args) throws Exception {
         // Make seeding idempotent: skip if any users already exist
@@ -35,7 +39,7 @@ public class DataSeeder implements CommandLineRunner {
         // Create admin user
         User admin = new User();
         admin.setEmail("admin@bidlux.com");
-        admin.setPassword("admin123");
+        admin.setPassword(passwordEncoder.encode("admin123"));
         admin.setName("Admin User");
         admin.setRole(User.UserRole.ADMIN);
         admin.setStatus(User.UserStatus.ACTIVE);
@@ -48,7 +52,7 @@ public class DataSeeder implements CommandLineRunner {
         // Create one seller
         User seller = new User();
         seller.setEmail("seller@bidlux.com");
-        seller.setPassword("seller123");
+        seller.setPassword(passwordEncoder.encode("seller123"));
         seller.setName("John Smith");
         seller.setRole(User.UserRole.SELLER);
         seller.setStatus(User.UserStatus.ACTIVE);
@@ -61,7 +65,7 @@ public class DataSeeder implements CommandLineRunner {
         // Create one customer
         User customer = new User();
         customer.setEmail("customer@bidlux.com");
-        customer.setPassword("customer123");
+        customer.setPassword(passwordEncoder.encode("customer123"));
         customer.setName("Jane Doe");
         customer.setRole(User.UserRole.CUSTOMER);
         customer.setStatus(User.UserStatus.ACTIVE);

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/bids")
+@RequestMapping("/api/v1/bids")
 @CrossOrigin(origins = "http://localhost:5173")
 public class BidController {
 

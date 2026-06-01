@@ -1,4 +1,12 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+const getHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+};
 
 export interface User {
   id: number;
@@ -52,25 +60,45 @@ export interface RazorpayOrder {
 
 // User API
 export const userApi = {
+  login: async (credentials: any): Promise<{ token: string; user: User }> => {
+    const response = await fetch(`${API_BASE_URL}/users/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),
+    });
+    if (!response.ok) throw new Error('Login failed');
+    return response.json();
+  },
+
+  register: async (user: Partial<User>): Promise<{ token: string; user: User }> => {
+    const response = await fetch(`${API_BASE_URL}/users/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(user),
+    });
+    if (!response.ok) throw new Error('Registration failed');
+    return response.json();
+  },
+
   getAllUsers: async (): Promise<User[]> => {
-    const response = await fetch(`${API_BASE_URL}/users`);
+    const response = await fetch(`${API_BASE_URL}/users`, { headers: getHeaders() });
     return response.json();
   },
 
   getUserById: async (id: number): Promise<User> => {
-    const response = await fetch(`${API_BASE_URL}/users/${id}`);
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, { headers: getHeaders() });
     return response.json();
   },
 
   getUserByEmail: async (email: string): Promise<User> => {
-    const response = await fetch(`${API_BASE_URL}/users/email/${email}`);
+    const response = await fetch(`${API_BASE_URL}/users/email/${email}`, { headers: getHeaders() });
     return response.json();
   },
 
   createUser: async (user: Partial<User>): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify(user),
     });
     return response.json();
@@ -79,7 +107,7 @@ export const userApi = {
   updateUser: async (id: number, user: Partial<User>): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify(user),
     });
     return response.json();
@@ -88,6 +116,7 @@ export const userApi = {
   suspendUser: async (id: number): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/users/${id}/suspend`, {
       method: 'PUT',
+      headers: getHeaders(),
     });
     return response.json();
   },
@@ -95,17 +124,18 @@ export const userApi = {
   activateUser: async (id: number): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/users/${id}/activate`, {
       method: 'PUT',
+      headers: getHeaders(),
     });
     return response.json();
   },
 
   searchUsers: async (query: string): Promise<User[]> => {
-    const response = await fetch(`${API_BASE_URL}/users/search?query=${encodeURIComponent(query)}`);
+    const response = await fetch(`${API_BASE_URL}/users/search?query=${encodeURIComponent(query)}`, { headers: getHeaders() });
     return response.json();
   },
 
   getUsersByRole: async (role: string): Promise<User[]> => {
-    const response = await fetch(`${API_BASE_URL}/users/role/${role}`);
+    const response = await fetch(`${API_BASE_URL}/users/role/${role}`, { headers: getHeaders() });
     return response.json();
   },
 };
@@ -113,34 +143,34 @@ export const userApi = {
 // Auction API
 export const auctionApi = {
   getAllAuctions: async (): Promise<Auction[]> => {
-    const response = await fetch(`${API_BASE_URL}/auctions`);
+    const response = await fetch(`${API_BASE_URL}/auctions`, { headers: getHeaders() });
     return response.json();
   },
 
   getActiveAuctions: async (): Promise<Auction[]> => {
-    const response = await fetch(`${API_BASE_URL}/auctions/active`);
+    const response = await fetch(`${API_BASE_URL}/auctions/active`, { headers: getHeaders() });
     return response.json();
   },
 
   getPendingAuctions: async (): Promise<Auction[]> => {
-    const response = await fetch(`${API_BASE_URL}/auctions/pending`);
+    const response = await fetch(`${API_BASE_URL}/auctions/pending`, { headers: getHeaders() });
     return response.json();
   },
 
   getAuctionsBySeller: async (sellerId: number): Promise<Auction[]> => {
-    const response = await fetch(`${API_BASE_URL}/auctions/seller/${sellerId}`);
+    const response = await fetch(`${API_BASE_URL}/auctions/seller/${sellerId}`, { headers: getHeaders() });
     return response.json();
   },
 
   getAuctionById: async (id: number): Promise<Auction> => {
-    const response = await fetch(`${API_BASE_URL}/auctions/${id}`);
+    const response = await fetch(`${API_BASE_URL}/auctions/${id}`, { headers: getHeaders() });
     return response.json();
   },
 
   createAuction: async (auction: Partial<Auction>): Promise<Auction> => {
     const response = await fetch(`${API_BASE_URL}/auctions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify(auction),
     });
     return response.json();
@@ -149,6 +179,7 @@ export const auctionApi = {
   approveAuction: async (id: number): Promise<Auction> => {
     const response = await fetch(`${API_BASE_URL}/auctions/${id}/approve`, {
       method: 'PUT',
+      headers: getHeaders(),
     });
     return response.json();
   },
@@ -156,6 +187,7 @@ export const auctionApi = {
   rejectAuction: async (id: number): Promise<Auction> => {
     const response = await fetch(`${API_BASE_URL}/auctions/${id}/reject`, {
       method: 'PUT',
+      headers: getHeaders(),
     });
     return response.json();
   },
@@ -163,6 +195,7 @@ export const auctionApi = {
   cancelAuction: async (id: number): Promise<Auction> => {
     const response = await fetch(`${API_BASE_URL}/auctions/${id}/cancel`, {
       method: 'PUT',
+      headers: getHeaders(),
     });
     return response.json();
   },
@@ -170,28 +203,30 @@ export const auctionApi = {
   incrementView: async (id: number): Promise<void> => {
     await fetch(`${API_BASE_URL}/auctions/${id}/view`, {
       method: 'PUT',
+      headers: getHeaders(),
     });
   },
 
   searchAuctions: async (query: string): Promise<Auction[]> => {
-    const response = await fetch(`${API_BASE_URL}/auctions/search?query=${encodeURIComponent(query)}`);
+    const response = await fetch(`${API_BASE_URL}/auctions/search?query=${encodeURIComponent(query)}`, { headers: getHeaders() });
     return response.json();
   },
 
   completeExpiredAuctions: async (): Promise<Auction[]> => {
     const response = await fetch(`${API_BASE_URL}/auctions/complete-expired`, {
       method: 'POST',
+      headers: getHeaders(),
     });
     return response.json();
   },
 
   getCompletedAuctions: async (): Promise<Auction[]> => {
-    const response = await fetch(`${API_BASE_URL}/auctions/completed`);
+    const response = await fetch(`${API_BASE_URL}/auctions/completed`, { headers: getHeaders() });
     return response.json();
   },
 
   getWonAuctionsByUser: async (userId: number): Promise<Auction[]> => {
-    const response = await fetch(`${API_BASE_URL}/auctions/won/${userId}`);
+    const response = await fetch(`${API_BASE_URL}/auctions/won/${userId}`, { headers: getHeaders() });
     return response.json();
   },
 };
@@ -201,32 +236,32 @@ export const bidApi = {
   placeBid: async (bid: Partial<Bid>): Promise<Bid> => {
     const response = await fetch(`${API_BASE_URL}/bids`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify(bid),
     });
     return response.json();
   },
 
   getBidsByAuction: async (auctionId: number): Promise<Bid[]> => {
-    const response = await fetch(`${API_BASE_URL}/bids/auction/${auctionId}`);
+    const response = await fetch(`${API_BASE_URL}/bids/auction/${auctionId}`, { headers: getHeaders() });
     return response.json();
   },
 
   getBidsByBidder: async (bidderId: number): Promise<Bid[]> => {
-    const response = await fetch(`${API_BASE_URL}/bids/bidder/${bidderId}`);
+    const response = await fetch(`${API_BASE_URL}/bids/bidder/${bidderId}`, { headers: getHeaders() });
     return response.json();
   },
 
   getHighestBid: async (auctionId: number): Promise<Bid> => {
-    const response = await fetch(`${API_BASE_URL}/bids/auction/${auctionId}/highest`);
+    const response = await fetch(`${API_BASE_URL}/bids/auction/${auctionId}/highest`, { headers: getHeaders() });
     return response.json();
   },
   getActiveAuctionsCountForBidder: async (bidderId: number): Promise<number> => {
-    const response = await fetch(`${API_BASE_URL}/bids/bidder/${bidderId}/active-auctions-count`);
+    const response = await fetch(`${API_BASE_URL}/bids/bidder/${bidderId}/active-auctions-count`, { headers: getHeaders() });
     return response.json();
   },
   getRecentBids: async (): Promise<Bid[]> => {
-    const response = await fetch(`${API_BASE_URL}/bids/recent`);
+    const response = await fetch(`${API_BASE_URL}/bids/recent`, { headers: getHeaders() });
     return response.json();
   },
 };
@@ -234,37 +269,38 @@ export const bidApi = {
 // Payments API
 export const paymentsApi = {
   getRazorpayKey: async (): Promise<{ keyId: string }> => {
-    const response = await fetch(`${API_BASE_URL}/payments/key`);
+    const response = await fetch(`${API_BASE_URL}/payments/key`, { headers: getHeaders() });
     return response.json();
   },
   createOrder: async (amountPaise: number): Promise<RazorpayOrder> => {
     const response = await fetch(`${API_BASE_URL}/payments/order`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify({ amount: amountPaise, currency: 'INR' }),
     });
     return response.json();
   },
   markWinsPaid: async (userId: number): Promise<{ updated: number }> => {
     const response = await fetch(`${API_BASE_URL}/payments/mark-wins-paid/${userId}`, {
-      method: 'POST'
+      method: 'POST',
+      headers: getHeaders(),
     });
     return response.json();
   },
   getSummary: async (): Promise<{ totalPaid: number; totalDue: number }> => {
-    const response = await fetch(`${API_BASE_URL}/payments/summary`);
+    const response = await fetch(`${API_BASE_URL}/payments/summary`, { headers: getHeaders() });
     return response.json();
   },
   getUserSummary: async (userId: number): Promise<{ totalPaid: number; totalDue: number }> => {
-    const response = await fetch(`${API_BASE_URL}/payments/user/${userId}/summary`);
+    const response = await fetch(`${API_BASE_URL}/payments/user/${userId}/summary`, { headers: getHeaders() });
     return response.json();
   },
   getUserUnpaidBids: async (userId: number): Promise<Bid[]> => {
-    const response = await fetch(`${API_BASE_URL}/payments/user/${userId}/unpaid-bids`);
+    const response = await fetch(`${API_BASE_URL}/payments/user/${userId}/unpaid-bids`, { headers: getHeaders() });
     return response.json();
   },
   getUserPaidBids: async (userId: number): Promise<Bid[]> => {
-    const response = await fetch(`${API_BASE_URL}/payments/user/${userId}/paid-bids`);
+    const response = await fetch(`${API_BASE_URL}/payments/user/${userId}/paid-bids`, { headers: getHeaders() });
     return response.json();
   }
 };

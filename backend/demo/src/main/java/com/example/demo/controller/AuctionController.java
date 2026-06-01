@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/auctions")
+@RequestMapping("/api/v1/auctions")
 @CrossOrigin(origins = "http://localhost:5173")
 public class AuctionController {
 
