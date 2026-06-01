@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 240 25% 8%;
+    --foreground: 40 90% 96%;
+
+    --card: 240 20% 12%;
+    --card-foreground: 40 90% 96%;
+
+    --popover: 240 20% 10%;
+    --popover-foreground: 40 90% 96%;
+
+    --primary: 265 85% 58%;
+    --primary-foreground: 40 90% 96%;
+
+    --secondary: 240 15% 18%;
+    --secondary-foreground: 40 90% 96%;
+
+    --muted: 240 15% 22%;
+    --muted-foreground: 40 30% 70%;
+
+    --accent: 45 95% 58%;
+    --accent-foreground: 240 25% 8%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 40 90% 96%;
+
+    --border: 240 15% 20%;
+    --input: 240 15% 20%;
+    --ring: 265 85% 58%;
+
+    --radius: 0.75rem;
+
+    --gradient-primary: linear-gradient(135deg, hsl(265 85% 58%), hsl(280 80% 48%));
+    --gradient-accent: linear-gradient(135deg, hsl(45 95% 58%), hsl(35 95% 52%));
+    --gradient-card: linear-gradient(180deg, hsl(240 20% 12%), hsl(240 25% 8%));
+    --gradient-hero: linear-gradient(135deg, hsl(240 25% 8%), hsl(265 85% 18%), hsl(240 25% 8%));
+    
+    --shadow-glow: 0 0 40px hsl(265 85% 58% / 0.3);
+    --shadow-accent: 0 0 30px hsl(45 95% 58% / 0.4);
+    --shadow-elegant: 0 10px 40px -10px hsl(0 0% 0% / 0.5);
+
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background: linear-gradient(135deg, hsl(240 25% 8%), hsl(265 85% 18%), hsl(240 25% 8%));
+    background-attachment: fixed;
+    background-size: 400% 400%;
+    animation: gradient-shift 15s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes gradient-shift-visible {
+    0% {
+      background-position: 0% 50%;
+    }
+    25% {
+      background-position: 50% 100%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    75% {
+      background-position: 50% 0%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .shadow-accent {
+    box-shadow: var(--shadow-accent);
+  }
+  
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .animated-bg {
+    background: linear-gradient(135deg, 
+      hsl(240 25% 8%), 
+      hsl(265 85% 28%), 
+      hsl(280 90% 35%),
+      hsl(265 85% 28%),
+      hsl(240 25% 8%)
+    ) !important;
+    background-attachment: fixed !important;
+    background-size: 400% 400% !important;
+    animation: gradient-shift-visible 8s ease infinite !important;
+  }
+}
