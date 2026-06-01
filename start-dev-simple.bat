@@ -1,50 +1,61 @@
 @echo off
-echo Starting BidLux Development Environment...
+title BidLux Development Environment
+echo ========================================
+echo   BidLux Development Environment
+echo ========================================
 echo.
 
-REM Check if PowerShell is available
-powershell -Command "Write-Host 'PowerShell is available' -ForegroundColor Green" >nul 2>&1
-if %errorlevel% neq 0 (
-    echo PowerShell is not available. Using basic batch method...
-    goto :basic_method
+setlocal enabledelayedexpansion
+
+REM Load environment variables from .env if it exists
+if exist .env (
+    echo Loading variables from .env...
+    for /f "usebackq tokens=*" %%i in (".env") do (
+        set "line=%%i"
+        if "!line:~0,1!" neq "#" (
+            set "%%i"
+        )
+    )
 )
 
-echo Using PowerShell for better process management...
-powershell -ExecutionPolicy Bypass -File "start-dev-advanced.ps1"
-goto :end
+echo.
+echo [1] Start with H2 Database (Recommended)
+echo [2] Start with MySQL Database
+echo.
+set /p choice="Select database option [1]: "
 
-:basic_method
-echo Using basic batch method...
+if "%choice%"=="2" (
+    set DB_TYPE=mysql
+    echo.
+    set /p DB_USERNAME="MySQL Username [root]: "
+    set /p DB_PASSWORD="MySQL Password []: "
+) else (
+    set DB_TYPE=h2
+)
+
 echo.
 echo Starting Backend (Spring Boot)...
 cd backend\demo
-start "Backend Server" /MIN cmd /c "mvnw.cmd spring-boot:run && pause"
+start "Backend Server" cmd /c "set DB_TYPE=%DB_TYPE%&& set DB_USERNAME=%DB_USERNAME%&& set DB_PASSWORD=%DB_PASSWORD%&& set RAZORPAY_KEY_ID=%RAZORPAY_KEY_ID%&& set RAZORPAY_KEY_SECRET=%RAZORPAY_KEY_SECRET%&& mvnw.cmd spring-boot:run || pause"
 
 echo.
-echo Waiting for backend to start...
+echo Waiting for backend to initialize (15 seconds)...
 timeout /t 15 /nobreak > nul
 
 echo.
 echo Starting Frontend (React)...
 cd ..\..
-start "Frontend Server" /MIN cmd /c "npm run dev && pause"
+start "Frontend Server" cmd /c "npm run dev || pause"
 
 echo.
-echo Both servers are starting...
-echo Backend: http://localhost:8080
+echo ========================================
+echo   Servers are starting!
+echo ========================================
+echo Backend:  http://localhost:8080
 echo Frontend: http://localhost:5173
-echo H2 Console: http://localhost:8080/h2-console
+echo Swagger:  http://localhost:8080/swagger-ui/index.html
 echo.
-echo Press any key to stop all servers and exit...
-pause > nul
-
-echo.
-echo Stopping servers...
-taskkill /F /IM java.exe 2>nul
-taskkill /F /IM node.exe 2>nul
-echo Servers stopped.
-
-:end
-echo.
-echo Goodbye!
+echo You can close this window. To stop the servers, 
+echo close the individual Backend and Frontend windows.
+echo ========================================
 pause

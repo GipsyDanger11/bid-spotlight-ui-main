@@ -10,9 +10,9 @@ BidLux is a scalable full-stack auction platform built with Spring Boot and Reac
 - Maven
 
 ### 2. Run the Application
-The easiest way to start the project is using the provided `start-dev.bat` script:
+The easiest way to start the project is using the provided `start-dev-simple.bat` script:
 ```bash
-./start-dev.bat
+./start-dev-simple.bat
 ```
 This script will:
 - Load environment variables from `.env`.
